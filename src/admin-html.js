@@ -116,8 +116,8 @@ export const ADMIN_HTML = `<!DOCTYPE html>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Date</th><th>Employee</th><th>In</th><th>Out</th><th>Lunch</th><th class="num">On clock</th><th class="num">Span</th><th>Flags</th><th></th></tr></thead>
-        <tbody id="tsBody"><tr><td colspan="9" class="empty">Loading...</td></tr></tbody>
+        <thead><tr><th>Date</th><th>Employee</th><th>In</th><th>Out</th><th>Lunch</th><th class="num">Hours worked</th><th>Flags</th><th></th></tr></thead>
+        <tbody id="tsBody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
       </table>
     </div>
   </section>
@@ -303,21 +303,21 @@ function rangeQuery(from, to, emp) {
 }
 
 async function loadTimesheet() {
-  $('tsBody').innerHTML = '<tr><td colspan="9" class="empty">Loading...</td></tr>';
+  $('tsBody').innerHTML = '<tr><td colspan="8" class="empty">Loading...</td></tr>';
   try {
     var data = await api('GET', '/timesheet' + rangeQuery($('tsFrom').value, $('tsTo').value, $('tsEmp').value));
     state.rows = data.rows;
     state.punches = data.punches;
     renderTimesheet();
   } catch (e) {
-    $('tsBody').innerHTML = '<tr><td colspan="9" class="empty">' + esc(e.message) + '</td></tr>';
+    $('tsBody').innerHTML = '<tr><td colspan="8" class="empty">' + esc(e.message) + '</td></tr>';
   }
 }
 
 function renderTimesheet() {
   var rows = state.rows;
   if ($('tsExceptions').checked) rows = rows.filter(function (r) { return r.flags.some(function (f) { return EXCEPTIONS.indexOf(f) >= 0; }); });
-  if (!rows.length) { $('tsBody').innerHTML = '<tr><td colspan="9" class="empty">Nothing in this range.</td></tr>'; return; }
+  if (!rows.length) { $('tsBody').innerHTML = '<tr><td colspan="8" class="empty">Nothing in this range.</td></tr>'; return; }
   $('tsBody').innerHTML = rows.map(function (r) {
     var key = r.employee_id + '|' + r.day;
     var flags = r.flags.map(function (f) { var d = FLAG[f] || [f, 'flag-info']; return '<span class="flag ' + d[1] + '">' + d[0] + '</span>'; }).join('');
@@ -332,11 +332,10 @@ function renderTimesheet() {
       '<td>' + fmtTime(r.last_out) + '</td>' +
       '<td>' + lunch + '</td>' +
       '<td class="num">' + dur(r.on_clock_min) + '</td>' +
-      '<td class="num">' + dur(r.span_min) + '</td>' +
       '<td>' + flags + '</td>' +
       '<td><button class="btn btn-light btn-sm" data-toggle="' + esc(key) + '">' + (state.open[key] ? 'Hide' : 'Details') + '</button></td>' +
       '</tr>';
-    if (state.open[key]) html += '<tr class="detail"><td colspan="9">' + renderDetail(r) + '</td></tr>';
+    if (state.open[key]) html += '<tr class="detail"><td colspan="8">' + renderDetail(r) + '</td></tr>';
     return html;
   }).join('');
 }

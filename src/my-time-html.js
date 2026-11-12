@@ -65,7 +65,7 @@ export const MY_TIME_HTML = `<!DOCTYPE html>
     </table></div></div>
     <h2 style="display:flex;justify-content:space-between;align-items:center">Days <button class="btn btn-sm" data-add="any">+ Add a missing punch</button></h2>
     <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>Date</th><th>In</th><th>Out</th><th class="hide-sm">Lunch</th><th class="num">On clock</th><th>Flags</th><th></th></tr></thead>
+      <thead><tr><th>Date</th><th>In</th><th>Out</th><th class="hide-sm">Lunch</th><th class="num">Hours worked</th><th>Flags</th><th></th></tr></thead>
       <tbody id="dayBody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
     </table></div></div>
   </div>
