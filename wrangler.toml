@@ -1,0 +1,25 @@
+name = "in-out-board"
+main = "src/worker.js"
+compatibility_date = "2024-12-01"
+
+# Every 15 minutes; runTick() decides what is due (midnight reset, alerts in business hours).
+[triggers]
+crons = ["*/15 * * * *"]
+
+[vars]
+ACCESS_AUD = "f2cea1554de5cc505675a201e16af64a43edce273f35659bb6aebbeb4ac917bb"
+ACCESS_TEAM_DOMAIN = "dry-art-f0ef.cloudflareaccess.com"
+ADMIN_EMAILS = "rajev@clarity.inc,jonathan@clarity.inc"
+
+# Bound on the live Worker; no code reads it today (state is in D1).
+[[kv_namespaces]]
+binding = "BOARD"
+id = "2d26be6b6f644c579cbeb7e86a0e4a55"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "in-out-board"
+database_id = "fd3196e7-a0b9-4c18-a757-d03377509c02"
+migrations_dir = "migrations"
+
+# Secrets (wrangler secret put): SLACK_BOT_TOKEN, SLACK_SIGNING_SECRET
