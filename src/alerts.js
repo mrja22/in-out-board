@@ -41,10 +41,7 @@ export function dmBlocks(kind, day, text) {
   ];
 }
 export var SUMMARY_LABEL = {
-  no_clock_in: "Not clocked in today",
-  missing_clock_out: "Missing clock-out",
-  missing_clock_in: "Missing clock-in",
-  no_lunch: "No lunch recorded"
+  no_clock_in: "Not clocked in today"
 };
 export async function midnightSweep(env, today, result) {
   const claim = await env.DB.prepare(
@@ -127,7 +124,7 @@ export async function askAboutOpenDays(env, emp, { self, ctx, now = Date.now() }
     ctx.waitUntil((async () => {
       for (const o of open) {
         const detail = `clocked in ${clock(o.clockedIn)}`;
-        await raiseAlert(env, settings, emp, o.day, "missing_clock_out", detail, dmText("missing_clock_out", emp, o.day, detail), now);
+        await raiseAlert(env, settings, emp, o.day, "missing_clock_out", detail, dmText("missing_clock_out", emp, o.day, detail), now, { admin: false });
       }
     })().catch((err) => console.error("Open-day DM failed", err)));
   } catch (err) {
@@ -177,13 +174,10 @@ export async function runTick(env, now = Date.now()) {
       const s = summarizeDay(day, dayPunches, settings, now);
       const asked = answered.has(`${emp.id}|${day}`);
       if (s.flags.includes("missing_clock_out") && !asked && !justArrived) {
-        await raise(emp, day, "missing_clock_out", s.first_in ? `clocked in ${clock(s.first_in)}` : "", shift);
+        await raise(emp, day, "missing_clock_out", s.first_in ? `clocked in ${clock(s.first_in)}` : "", shift, { admin: false });
       }
       if (s.flags.includes("missing_clock_in") && !asked) {
-        await raise(emp, day, "missing_clock_in", s.last_out ? `clocked out ${clock(s.last_out)}` : "", shift);
-      }
-      if (s.flags.includes("no_lunch")) {
-        await raise(emp, day, "no_lunch", `${clock(s.first_in)} - ${clock(s.last_out)}`, shift, { dm: false });
+        await raise(emp, day, "missing_clock_in", s.last_out ? `clocked out ${clock(s.last_out)}` : "", shift, { admin: false });
       }
     }
     if (!live.length && lp.minutes >= shift.start + settings.clock_in_grace_min) {
@@ -218,7 +212,7 @@ export async function postAdminSummary(env, settings, lp, now, employees, result
     `SELECT a.*, e.name FROM alerts a JOIN employees e ON e.id = a.employee_id
        WHERE a.admin_notified_at IS NULL AND a.created_at >= ? ORDER BY a.kind, a.day, e.name`
   ).bind(now - LOOKBACK_DAYS * 864e5).all()).results;
-  const pending = await stillOpen(env, settings, raised, now);
+  const pending = (await stillOpen(env, settings, raised, now)).filter((a) => a.kind in SUMMARY_LABEL);
   if (!pending.length) return;
   const lines = [];
   for (const kind of Object.keys(SUMMARY_LABEL)) {
@@ -228,7 +222,7 @@ export async function postAdminSummary(env, settings, lp, now, employees, result
     for (const a of rows) {
       const when = kind === "no_clock_in" ? "" : ` - ${prettyDate(a.day)}`;
       const extra = a.detail ? ` (${a.detail})` : "";
-      const dm = kind === "no_lunch" ? "" : a.dm_sent_at ? "" : " _(no Slack DM - not linked)_";
+      const dm = a.dm_sent_at ? "" : " _(no Slack DM - not linked)_";
       lines.push(`\u2022 ${a.name}${when}${extra}${dm}`);
     }
   }
