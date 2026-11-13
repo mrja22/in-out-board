@@ -65,8 +65,8 @@ export const MY_TIME_HTML = `<!DOCTYPE html>
     </table></div></div>
     <h2 style="display:flex;justify-content:space-between;align-items:center">Days <button class="btn btn-sm" data-add="any">+ Add a missing punch</button></h2>
     <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>Date</th><th>In</th><th>Out</th><th class="hide-sm">Lunch</th><th class="num">Hours worked</th><th>Flags</th><th></th></tr></thead>
-      <tbody id="dayBody"><tr><td colspan="7" class="empty">Loading...</td></tr></tbody>
+      <thead><tr><th>Date</th><th>In</th><th>Out</th><th class="hide-sm">Lunch</th><th class="num">Hours worked</th><th class="num" title="Hours worked plus lunch, lunch counted up to 1 hour">Total hours</th><th>Flags</th><th></th></tr></thead>
+      <tbody id="dayBody"><tr><td colspan="8" class="empty">Loading...</td></tr></tbody>
     </table></div></div>
   </div>
 </div>
@@ -140,12 +140,12 @@ function render() {
     if (pendingFor[r.day]) flags += '<span class="flag flag-pending">Fix pending</span>';
     var lunch = r.lunch ? fmtTime(r.lunch.start) + ' - ' + fmtTime(r.lunch.end) : '<span class="muted">-</span>';
     var html = '<tr><td style="white-space:nowrap">' + prettyDay(r.day) + '</td><td>' + fmtTime(r.first_in) + '</td><td>' + fmtTime(r.last_out) + '</td>' +
-      '<td class="hide-sm">' + lunch + '</td><td class="num">' + dur(r.on_clock_min) + '</td><td>' + flags + '</td>' +
+      '<td class="hide-sm">' + lunch + '</td><td class="num">' + dur(r.on_clock_min) + '</td><td class="num">' + dur(r.total_min) + '</td><td>' + flags + '</td>' +
       '<td style="white-space:nowrap"><button class="btn btn-sm" data-add="' + r.day + '">+ Missing punch</button> ' +
       '<button class="btn btn-light btn-sm" data-toggle="' + r.day + '">' + (open[r.day] ? 'Hide' : 'Punches') + '</button></td></tr>';
-    if (open[r.day]) html += '<tr class="detail"><td colspan="7">' + detail(r.day, pendingFor) + '</td></tr>';
+    if (open[r.day]) html += '<tr class="detail"><td colspan="8">' + detail(r.day, pendingFor) + '</td></tr>';
     return html;
-  }).join('') : '<tr><td colspan="7" class="empty">No work days in the last two weeks.</td></tr>';
+  }).join('') : '<tr><td colspan="8" class="empty">No work days in the last two weeks.</td></tr>';
 }
 
 function detail(day, pendingFor) {
