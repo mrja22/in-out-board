@@ -187,6 +187,7 @@ export function summarizeDay(day, punches, settings, now) {
     last_out: ongoing ? null : lastOut,
     span_min: span,
     on_clock_min: onClock,
+    total_min: onClock + (lunch ? Math.min(lunch.minutes, 60) : 0),
     lunch: lunch ? { start: lunch.start, end: lunch.end, minutes: lunch.minutes, basis: lunch.basis } : null,
     away_min: awayTotal - (lunch ? lunch.minutes : 0),
     punch_count: live.length,
